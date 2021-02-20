@@ -5,6 +5,8 @@ import (
 	"github.com/cmingou/tradingview-bot/internal/tradingview"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"log"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -25,23 +27,34 @@ func main() {
 	}
 
 	b.Handle(tb.OnText, func(m *tb.Message) {
-		fmt.Printf("Got Text:\n%+v\n", m)
+		if strings.HasPrefix(m.Text, "$") && strings.Count(m.Text, "$") == 1 {
+			symbol := m.Text[1:]
+
+			match, err := regexp.MatchString("^[A-Za-z]+$", symbol)
+			if err != nil {
+				fmt.Printf("%v\n", err)
+			}
+
+			if match {
+				tradingview.SearchAndSendStockImage(b, m, symbol, tradingview.Time1D, false)
+			}
+		}
 	})
 
 	b.Handle("/chart1d", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, tradingview.Time1D)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, true)
 	})
 
 	b.Handle("/chart1m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, tradingview.Time1M)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, true)
 	})
 
 	b.Handle("/chart3m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, tradingview.Time3M)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, true)
 	})
 
 	b.Handle("/chart1y", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, tradingview.Time1Y)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, true)
 	})
 
 	b.Start()

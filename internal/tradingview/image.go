@@ -85,7 +85,7 @@ func (s *StockImageOptions) CountdownToDel() {
 		<-timer.C
 		// delete images
 		if err := os.Remove(s.FilePath()); err != nil {
-			panic(err)
+			fmt.Printf("%v\n", err)
 		}
 	}()
 }
@@ -181,9 +181,9 @@ func buildParams(options *StockImageOptions) ([]string, error) {
 	return a, nil
 }
 
-func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, t string) {
+func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, symbol, t string, del bool) {
 	var err error
-	if m.Payload == "" {
+	if symbol == "" {
 		// Did not add stock id
 		mReply, _ := b.Reply(m, "请输入股票代号, 例如: /chart AAPL")
 
@@ -203,12 +203,12 @@ func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, t string) {
 		return
 	}
 
-	imgName := strconv.Itoa(int(m.Unixtime)) + "-" + m.Payload + "-" + m.Sender.Username
+	imgName := strconv.Itoa(int(m.Unixtime)) + "-" + strconv.Itoa(m.ID) + "-" + symbol + "-" + m.Sender.Username
 
 	//Generate stock image
 	s := StockImageOptions{
-		Symbol:      m.Payload,
-		Description: m.Payload,
+		Symbol:      symbol,
+		Description: symbol,
 		Time:        t,
 		Input:       "-",
 		Output:      imgName,
@@ -221,7 +221,7 @@ func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, t string) {
 	}
 
 	if err := s.GenerateImage(); err != nil {
-		panic(err)
+		fmt.Printf("%v\n", err)
 	}
 	p := &tb.Photo{
 		File: tb.File{
@@ -232,16 +232,17 @@ func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, t string) {
 	}
 
 	if _, err := b.Reply(m, p); err != nil {
-		panic(err)
+		fmt.Printf("%v\n", err)
 	}
 
 	s.CountdownToDel()
 
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second)
 
 	// Delete request user command
-	err = b.Delete(m)
-	if err != nil {
-		fmt.Printf("%v\n", err)
+	if del {
+		if err = b.Delete(m); err != nil {
+			fmt.Printf("%v\n", err)
+		}
 	}
 }
