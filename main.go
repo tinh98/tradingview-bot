@@ -41,6 +41,12 @@ func main() {
 		}
 	})
 
+	//chart1d - 查询股票图表(1天)
+	//chart1m - 查询股票图表(1个月)
+	//chart3m - 查询股票图表(3个月)
+	//chart1y - 查询股票图表(1年)
+	//chart - 查询股票图表(all)
+
 	b.Handle("/chart1d", func(m *tb.Message) {
 		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, true)
 	})
@@ -55,6 +61,10 @@ func main() {
 
 	b.Handle("/chart1y", func(m *tb.Message) {
 		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, true)
+	})
+
+	b.Handle("/chart", func(m *tb.Message) {
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, true)
 	})
 
 	b.Start()
