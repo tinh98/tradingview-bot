@@ -36,7 +36,7 @@ func main() {
 			}
 
 			if match {
-				tradingview.SearchAndSendStockImage(b, m, symbol, tradingview.Time1D, false)
+				tradingview.SearchAndSendStockImage(b, m, symbol, tradingview.Time1D, false, true)
 			}
 		}
 	})
@@ -48,24 +48,25 @@ func main() {
 	//chart - 查询股票图表(all)
 
 	b.Handle("/chart1d", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, true, true)
 	})
 
 	b.Handle("/chart1m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, true, true)
 	})
 
 	b.Handle("/chart3m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, true, true)
 	})
 
 	b.Handle("/chart1y", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, true, true)
 	})
 
 	b.Handle("/chart", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, true, true)
 	})
 
+	fmt.Printf("bot started!!\n")
 	b.Start()
 }

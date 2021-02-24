@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func tradingviewWidget(symbols, desc, time string) string {
+func tradingviewWidget(symbols, desc, timeRange string) string {
 	return fmt.Sprintf(`
 <!-- TradingView Widget BEGIN -->
 <div class="tradingview-widget-container">
@@ -45,7 +45,42 @@ func tradingviewWidget(symbols, desc, time string) string {
   </script>
 </div>
 <!-- TradingView Widget END -->
-`, desc, symbols, time)
+`, desc, symbols, timeRange)
+}
+
+func tradingviewDetailWidget(symbols, timeRange string) string {
+	return fmt.Sprintf(`
+<!-- TradingView Widget BEGIN -->
+<div class="tradingview-widget-container">
+  <div id="tradingview_f9dfa"></div>
+  <div class="tradingview-widget-copyright">图表仅供讨论使用，资料由TradingView提供</div>
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+  new TradingView.widget(
+  {
+  "width": 1000,
+  "height": 400,
+  "symbol": "%v",
+  "timezone": "America/New_York",
+  "theme": "dark",
+  "style": "1",
+  "locale": "zh_CN",
+  "toolbar_bg": "#f1f3f6",
+  "enable_publishing": false,
+  "hide_top_toolbar": true,
+  "range": "%v",
+  "allow_symbol_change": true,
+  "save_image": false,
+  "studies": [
+    "MASimple@tv-basicstudies"
+  ],
+  "container_id": "tradingview_f9dfa"
+}
+  );
+  </script>
+</div>
+<!-- TradingView Widget END -->
+`, symbols, timeRange)
 }
 
 type StockImageOptions struct {
@@ -58,16 +93,17 @@ type StockImageOptions struct {
 	// Must be absolute path e.g /usr/local/bin/capture-website
 	BinaryPath string
 
-	Input     string
-	Output    string
-	Dir       string
-	Html      string
-	Format    string
-	Width     int
-	Height    int
-	Delay     int
-	Overwrite bool
-	Darkmode  bool
+	Input             string
+	Output            string
+	Dir               string
+	Html              string
+	Format            string
+	Width             int
+	Height            int
+	Delay             int
+	Overwrite         bool
+	Darkmode          bool
+	TechnicalAnalysis bool
 }
 
 func (s *StockImageOptions) FilePath() string {
@@ -91,7 +127,7 @@ func (s *StockImageOptions) CountdownToDel() {
 }
 
 func (s *StockImageOptions) GenerateImage() error {
-	arr, err := buildParams(s)
+	arr, err := buildParams(s, s.TechnicalAnalysis)
 	if err != nil {
 		return err
 	}
@@ -119,7 +155,7 @@ func (s *StockImageOptions) GenerateImage() error {
 	return err
 }
 
-func buildParams(options *StockImageOptions) ([]string, error) {
+func buildParams(options *StockImageOptions, technicalAnalysis bool) ([]string, error) {
 	a := []string{}
 
 	options.Format = "png"
@@ -132,7 +168,11 @@ func buildParams(options *StockImageOptions) ([]string, error) {
 		return []string{}, errors.New("Must provide description")
 	}
 
-	options.Html = tradingviewWidget(options.Description, options.Symbol, options.Time)
+	if technicalAnalysis {
+		options.Html = tradingviewDetailWidget(options.Symbol, options.Time[1:])
+	} else {
+		options.Html = tradingviewWidget(options.Description, options.Symbol, options.Time)
+	}
 
 	if options.Input == "" {
 		return []string{}, errors.New("Must provide input")
@@ -181,7 +221,7 @@ func buildParams(options *StockImageOptions) ([]string, error) {
 	return a, nil
 }
 
-func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, symbol, t string, del bool) {
+func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, symbol, timeRange string, delFile, technicalAnalysis bool) {
 	var err error
 	if symbol == "" {
 		// Did not add stock id
@@ -207,17 +247,18 @@ func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, symbol, t string, del boo
 
 	//Generate stock image
 	s := StockImageOptions{
-		Symbol:      symbol,
-		Description: symbol,
-		Time:        t,
-		Input:       "-",
-		Output:      imgName,
-		Dir:         "./img",
-		Width:       1015,
-		Height:      400,
-		Delay:       4,
-		Overwrite:   true,
-		Darkmode:    true,
+		Symbol:            symbol,
+		Description:       symbol,
+		Time:              timeRange,
+		Input:             "-",
+		Output:            imgName,
+		Dir:               "./img",
+		Width:             1015,
+		Height:            400,
+		Delay:             4,
+		Overwrite:         true,
+		Darkmode:          true,
+		TechnicalAnalysis: technicalAnalysis,
 	}
 
 	if err := s.GenerateImage(); err != nil {
@@ -240,7 +281,7 @@ func SearchAndSendStockImage(b *tb.Bot, m *tb.Message, symbol, t string, del boo
 	time.Sleep(time.Second)
 
 	// Delete request user command
-	if del {
+	if delFile {
 		if err = b.Delete(m); err != nil {
 			fmt.Printf("%v\n", err)
 		}
