@@ -2,7 +2,7 @@ package tradingview
 
 import (
 	"fmt"
-	"github.com/cmingou/tradingview-bot/internal/screenshot"
+	"github.com/tinh98/tradingview-bot/internal/screenshot"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"os"
 	"path"
