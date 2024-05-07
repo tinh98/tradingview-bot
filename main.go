@@ -1,7 +1,9 @@
 package main
 
-import "github.com/tinh98/tradingview-bot/internal/tradingview"
+import (
+	"github.com/tinh98/tradingview-bot/twbot"
+)
 
 func main() {
-	tradingview.InitBot(token)
+	twbot.InitBot(token)
 }

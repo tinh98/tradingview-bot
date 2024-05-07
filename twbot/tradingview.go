@@ -1,7 +1,8 @@
-package tradingview
+package twbot
 
 import (
 	"fmt"
+	"github.com/tinh98/tradingview-bot/internal/tradingview"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"log"
 	"regexp"
@@ -35,7 +36,7 @@ func InitBot(token string) {
 			}
 
 			if match {
-				SearchAndSendStockImage(b, m, symbol, Time1D, false, true)
+				tradingview.SearchAndSendStockImage(b, m, symbol, tradingview.Time1D, false, true)
 			}
 		}
 	})
@@ -47,23 +48,23 @@ func InitBot(token string) {
 	//chart - 查询股票图表(all)
 
 	b.Handle("/chart1d", func(m *tb.Message) {
-		SearchAndSendStockImage(b, m, m.Payload, Time1D, false, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, false, true)
 	})
 
 	b.Handle("/chart1m", func(m *tb.Message) {
-		SearchAndSendStockImage(b, m, m.Payload, Time1M, false, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, false, true)
 	})
 
 	b.Handle("/chart3m", func(m *tb.Message) {
-		SearchAndSendStockImage(b, m, m.Payload, Time3M, false, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, false, true)
 	})
 
 	b.Handle("/chart1y", func(m *tb.Message) {
-		SearchAndSendStockImage(b, m, m.Payload, Time1Y, false, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, false, true)
 	})
 
 	b.Handle("/chart", func(m *tb.Message) {
-		SearchAndSendStockImage(b, m, m.Payload, TimeAll, false, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, false, true)
 	})
 
 	fmt.Printf("bot started!!\n")
