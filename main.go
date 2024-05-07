@@ -14,7 +14,7 @@ var (
 	b *tb.Bot
 )
 
-func main() {
+func InitBot(token string) {
 	var err error
 	b, err = tb.NewBot(tb.Settings{
 		// Token for bot
@@ -48,25 +48,29 @@ func main() {
 	//chart - 查询股票图表(all)
 
 	b.Handle("/chart1d", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, true, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1D, false, true)
 	})
 
 	b.Handle("/chart1m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, true, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1M, false, true)
 	})
 
 	b.Handle("/chart3m", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, true, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time3M, false, true)
 	})
 
 	b.Handle("/chart1y", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, true, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.Time1Y, false, true)
 	})
 
 	b.Handle("/chart", func(m *tb.Message) {
-		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, true, true)
+		tradingview.SearchAndSendStockImage(b, m, m.Payload, tradingview.TimeAll, false, true)
 	})
 
 	fmt.Printf("bot started!!\n")
 	b.Start()
+}
+
+func main() {
+	InitBot(token)
 }
