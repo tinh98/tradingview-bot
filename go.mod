@@ -1,4 +1,4 @@
-module github.com/cmingou/tradingview-bot
+module github.com/tinh98/tradingview-bot
 
 go 1.15
 
